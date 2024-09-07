@@ -26,20 +26,6 @@ const getAccessToken = async () => {
     }
 };
 
-// Test route to verify token generation
-app.get('/access_token', async (req, res) => {
-    try {
-        const token = await getAccessToken();
-        res.send({ token });
-    } catch (error) {
-        res.status(500).send('Error getting access token');
-    }
-});
-
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
-
 // Function to initiate Lipa na M-Pesa Online (STK Push)
 const lipaNaMpesaOnline = async (phoneNumber, amount) => {
     const token = await getAccessToken();
@@ -91,4 +77,18 @@ app.post('/prompt-payment', async (req, res) => {
     } catch (error) {
         res.status(500).send({ success: false, message: 'Payment failed' });
     }
+});
+
+// Test route to verify token generation
+app.get('/access_token', async (req, res) => {
+    try {
+        const token = await getAccessToken();
+        res.send({ token });
+    } catch (error) {
+        res.status(500).send('Error getting access token');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });

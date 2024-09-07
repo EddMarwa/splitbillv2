@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Placeholder for actual M-Pesa API logic
     }
 });
-
 // Send payment prompt requests to the backend
 function sendPaymentPrompts(phoneNumbers, billPerPerson) {
     fetch('/prompt-payment', {
