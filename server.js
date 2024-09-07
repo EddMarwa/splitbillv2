@@ -1,94 +1,83 @@
 const express = require('express');
 const axios = require('axios');
-require('dotenv').config();
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const base64 = require('base-64');
 
 const app = express();
-app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
-const port = process.env.PORT || 3000;
+// M-Pesa credentials
+const consumerKey = 'RmGjoXqvR1NlNzGp3Shk8Dn15EpdtGvkUyC1ekulW8gXfyhS';
+const consumerSecret = 'Puo2dlPBHDjL8puvehLfHgl7JNT8zq9Xg9aGPnEWEEqLOeoBgDcuiPFxQH8EI20F';
+const shortCode = '522533'; // Paybill/Till number
+const passkey = ''; // For Lipa na M-Pesa Online
+const lipaNaMpesaOnlineUrl = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Change URL for production
 
-// Function to get M-Pesa access token
-const getAccessToken = async () => {
-    const consumerKey = process.env.CONSUMER_KEY;
-    const consumerSecret = process.env.CONSUMER_SECRET;
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
-
+const generateToken = async () => {
     try {
-        const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+        const tokenResponse = await axios({
+            method: 'POST',
+            url: 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', // Change URL for production
             headers: {
-                Authorization: `Basic ${auth}`,
-            },
-        });
-        return response.data.access_token;
-    } catch (error) {
-        console.error('Error getting access token:', error);
-        throw error;
-    }
-};
-
-// Function to initiate Lipa na M-Pesa Online (STK Push)
-const lipaNaMpesaOnline = async (phoneNumber, amount) => {
-    const token = await getAccessToken();
-    const shortcode = process.env.MPESA_SHORTCODE;
-    const passkey = process.env.MPESA_PASSKEY;
-    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
-
-    const requestBody = {
-        "BusinessShortCode": shortcode,
-        "Password": password,
-        "Timestamp": timestamp,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": amount,
-        "PartyA": phoneNumber,
-        "PartyB": shortcode,
-        "PhoneNumber": phoneNumber,
-        "CallBackURL": process.env.MPESA_CALLBACK_URL,
-        "AccountReference": "BillSplitPayment",
-        "TransactionDesc": "Bill split payment"
-    };
-
-    try {
-        const response = await axios.post(
-            'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-            requestBody,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                'Authorization': `Basic ${base64.encode(`${consumerKey}:${consumerSecret}`)}`
             }
-        );
-        return response.data;
+        });
+        return tokenResponse.data.access_token;
     } catch (error) {
-        console.error('Error initiating STK Push:', error.response.data);
+        console.error('Error generating token:', error);
         throw error;
     }
 };
 
-// Route to initiate payment prompts
-app.post('/prompt-payment', async (req, res) => {
+// Route to initiate payment
+app.post('/api/mpesa-prompt', async (req, res) => {
     const { phoneNumbers, amount } = req.body;
-
     try {
-        const responses = await Promise.all(
-            phoneNumbers.map((phoneNumber) => lipaNaMpesaOnline(phoneNumber, amount))
-        );
-        res.send({ success: true, responses });
+        const token = await generateToken();
+        
+        // Loop through phone numbers and send payment prompt
+        const requests = phoneNumbers.map(phone => {
+            return axios.post(lipaNaMpesaOnlineUrl, {
+                BusinessShortCode: shortCode,
+                Password: new Buffer.from(`${shortCode}${passkey}${new Date().toISOString().substring(0, 14)}`).toString('base64'),
+                Timestamp: new Date().toISOString().substring(0, 14),
+                TransactionType: 'CustomerPayBillOnline',
+                Amount: amount,
+                PartyA: phone,
+                PartyB: shortCode,
+                PhoneNumber: phone,
+                CallBackURL: 'https://your-callback-url.com/callback', // Replace with your callback URL
+                AccountReference: 'BillPayment',
+                TransactionDesc: 'Payment for bill'
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        });
+
+        await Promise.all(requests);
+        res.json({ success: true });
     } catch (error) {
-        res.status(500).send({ success: false, message: 'Payment failed' });
+        console.error('Error sending payment prompts:', error);
+        res.json({ success: false, error: error.message });
     }
 });
 
-// Test route to verify token generation
-app.get('/access_token', async (req, res) => {
-    try {
-        const token = await getAccessToken();
-        res.send({ token });
-    } catch (error) {
-        res.status(500).send('Error getting access token');
-    }
-});
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+
+//Callback Url
+app.post('/callback', (req, res) => {
+    const response = req.body;
+    console.log('M-Pesa Callback Response:', response);
+
+    // Process the callback response here (e.g., update database, notify user)
+    
+    res.status(200).send('Callback received');
 });
