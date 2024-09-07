@@ -10,9 +10,9 @@ body {
 }
 
 .container {
-    background-color: #fff; /* White background for the form */
-    border: 1px solid #ddd; /* Light border for the frame */
-    border-radius: 8px; /* Rounded corners */
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     padding: 20px;
     width: 100%;
