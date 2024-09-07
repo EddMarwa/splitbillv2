@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitting System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Bill Splitting System</h1>
+    </header>
+    <main>
+        <section id="bill-creation">
+            <h2>Create a Bill</h2>
+            <form id="bill-form">
+                <label for="bill-name">Bill Name:</label>
+                <input type="text" id="bill-name" required>
+                <label for="bill-amount">Total Amount (KSH):</label>
+                <input type="number" id="bill-amount" required>
+                <button type="submit">Create Bill</button>
+            </form>
+        </section>
+        <section id="bill-list">
+            <h2>Bill List</h2>
+            <ul id="bills"></ul>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
