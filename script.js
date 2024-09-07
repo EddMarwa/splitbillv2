@@ -1,73 +1,86 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const billForm = document.getElementById("bill-form");
-    const phoneNumbersContainer = document.getElementById("phone-numbers-container");
-    const addPhoneButton = document.getElementById("add-phone");
-    const resultDiv = document.getElementById("result");
+// Function to calculate and display amount per person
+function updateAmountPerPerson() {
+    const totalBill = parseFloat(document.getElementById('total-bill').value.trim());
+    const phoneNumbers = document.querySelectorAll('.phone-number').length;
+    
+    if (totalBill > 0 && phoneNumbers > 0) {
+        const roundedAmount = Math.ceil(totalBill);
+        const amountPerPerson = Math.ceil(roundedAmount / phoneNumbers);
+        document.getElementById('amount-per-person').textContent = amountPerPerson;
+    } else {
+        document.getElementById('amount-per-person').textContent = '0';
+    }
+}
 
-    // Add a new phone number input field when "+ Add Phone Number" is clicked
-    addPhoneButton.addEventListener("click", () => {
-        const newPhoneNumberInput = document.createElement("input");
-        newPhoneNumberInput.type = "tel";
-        newPhoneNumberInput.classList.add("phone-number");
-        newPhoneNumberInput.placeholder = "Enter phone number";
-        phoneNumbersContainer.appendChild(newPhoneNumberInput);
-    });
+// Add event listener to update amount per person when the total bill or phone numbers change
+document.getElementById('total-bill').addEventListener('input', updateAmountPerPerson);
 
-    // Handle form submission and calculate bill splitting
-    billForm.addEventListener("submit", (event) => {
-        event.preventDefault();
+// Add one new phone input field
+document.getElementById('add-phone').addEventListener('click', () => {
+    const phoneInputs = document.getElementById('phone-inputs');
+    const newInput = document.createElement('div');
+    newInput.className = 'phone-input';
+    newInput.innerHTML = '<input type="text" class="phone-number" placeholder="Enter phone number" required /><button type="button" class="remove-button">Remove</button>';
+    phoneInputs.appendChild(newInput);
+    updateAmountPerPerson();
+});
 
-        // Get the total bill amount
-        const totalAmount = document.getElementById("total-amount").value;
-
-        // Get all the phone numbers
-        const phoneNumbers = Array.from(document.querySelectorAll(".phone-number")).map(input => input.value);
-
-        // Calculate the bill per person and round it up to the nearest whole number
-        const billPerPerson = Math.ceil(totalAmount / phoneNumbers.length);
-
-        // Display the result
-        resultDiv.innerHTML = `
-            <p>Total Bill: KSH ${totalAmount}</p>
-            <p>Each person needs to pay: KSH ${billPerPerson}</p>
-            <button id="prompt-payment">Prompt Payment</button>
-        `;
-
-        // Add event listener for "Prompt Payment" button
-        const promptPaymentButton = document.getElementById("prompt-payment");
-        promptPaymentButton.addEventListener("click", () => {
-            sendPaymentPrompts(phoneNumbers, billPerPerson);
-        });
-    });
-
-    // Function to send payment prompts (placeholder for actual M-Pesa integration)
-    function sendPaymentPrompts(phoneNumbers, billPerPerson) {
-        alert(`Prompting payment of KSH ${billPerPerson} to the following numbers:\n${phoneNumbers.join(", ")}`);
-        // Placeholder for actual M-Pesa API logic
+// Remove phone input field
+document.getElementById('phone-inputs').addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-button')) {
+        const phoneInput = event.target.closest('.phone-input');
+        phoneInput.remove();
+        updateAmountPerPerson();
     }
 });
-// Send payment prompt requests to the backend
-function sendPaymentPrompts(phoneNumbers, billPerPerson) {
-    fetch('/prompt-payment', {
+
+// Handle form submission
+document.getElementById('submit').addEventListener('click', () => {
+    const tillNumber = document.getElementById('till-number').value.trim();
+    const totalBill = document.getElementById('total-bill').value.trim();
+    const phoneNumbers = Array.from(document.querySelectorAll('.phone-number'))
+        .map(input => input.value.trim())
+        .filter(value => value.length > 0);
+
+    if (!tillNumber) {
+        alert('Please enter the till number.');
+        return;
+    }
+
+    if (!totalBill || isNaN(totalBill) || totalBill <= 0) {
+        alert('Please enter a valid total bill amount.');
+        return;
+    }
+
+    if (phoneNumbers.length === 0) {
+        alert('Please enter at least one phone number.');
+        return;
+    }
+
+    // Perform rounding of total bill
+    const roundedAmount = Math.ceil(parseFloat(totalBill));
+
+    fetch('/api/mpesa-prompt', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            phoneNumbers: phoneNumbers,
-            amount: billPerPerson
-        }),
+            tillNumber,
+            phoneNumbers,
+            amount: roundedAmount
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Payment prompts sent successfully!');
+            alert('Payment prompts sent successfully.');
         } else {
-            alert('Payment prompt failed!');
+            alert('Failed to send payment prompts.');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('There was an error sending the payment prompts.');
+        alert('Error sending payment prompts.');
     });
-}
+});
