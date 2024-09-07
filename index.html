@@ -7,25 +7,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
+    <div class="container">
         <h1>Bill Splitting System</h1>
-    </header>
-    <main>
-        <section id="bill-creation">
-            <h2>Create a Bill</h2>
-            <form id="bill-form">
-                <label for="bill-name">Bill Name:</label>
-                <input type="text" id="bill-name" required>
-                <label for="bill-amount">Total Amount (KSH):</label>
-                <input type="number" id="bill-amount" required>
-                <button type="submit">Create Bill</button>
-            </form>
-        </section>
-        <section id="bill-list">
-            <h2>Bill List</h2>
-            <ul id="bills"></ul>
-        </section>
-    </main>
+        
+        <!-- Form for entering total bill amount -->
+        <form id="bill-form">
+            <label for="total-amount">Total Bill Amount (KSH):</label>
+            <input type="number" id="total-amount" required placeholder="Enter the total bill">
+
+            <label for="phone-numbers">Group Members' Phone Numbers:</label>
+            <!-- Area to dynamically add phone numbers -->
+            <div id="phone-numbers-container">
+                <input type="tel" class="phone-number" placeholder="Enter phone number" required>
+            </div>
+            <button type="button" id="add-phone">+ Add Phone Number</button>
+
+            <button type="submit">Split Bill</button>
+        </form>
+
+        <!-- Section to display results -->
+        <div id="result"></div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

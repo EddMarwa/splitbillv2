@@ -1,44 +1,60 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
+.container {
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+}
+
+h1 {
     text-align: center;
-}
-
-main {
-    padding: 2rem;
+    margin-bottom: 20px;
 }
 
 form {
-    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
 }
 
 label {
-    display: block;
-    margin: 0.5rem 0;
+    margin-bottom: 8px;
 }
 
-input, button {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    width: 100%;
-    box-sizing: border-box;
+input {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 button {
-    background-color: #333;
-    color: #fff;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #555;
+    background-color: #218838;
+}
+
+#add-phone {
+    background-color: #007bff;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    text-align: center;
 }

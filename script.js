@@ -1,17 +1,48 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const billForm = document.getElementById('bill-form');
-    const billList = document.getElementById('bills');
+document.addEventListener("DOMContentLoaded", () => {
+    const billForm = document.getElementById("bill-form");
+    const phoneNumbersContainer = document.getElementById("phone-numbers-container");
+    const addPhoneButton = document.getElementById("add-phone");
+    const resultDiv = document.getElementById("result");
 
-    billForm.addEventListener('submit', (event) => {
+    // Add a new phone number input field when "+ Add Phone Number" is clicked
+    addPhoneButton.addEventListener("click", () => {
+        const newPhoneNumberInput = document.createElement("input");
+        newPhoneNumberInput.type = "tel";
+        newPhoneNumberInput.classList.add("phone-number");
+        newPhoneNumberInput.placeholder = "Enter phone number";
+        phoneNumbersContainer.appendChild(newPhoneNumberInput);
+    });
+
+    // Handle form submission and calculate bill splitting
+    billForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
-        const billName = document.getElementById('bill-name').value;
-        const billAmount = document.getElementById('bill-amount').value;
+        // Get the total bill amount
+        const totalAmount = document.getElementById("total-amount").value;
 
-        const listItem = document.createElement('li');
-        listItem.textContent = `${billName}: KSH ${billAmount}`;
-        billList.appendChild(listItem);
+        // Get all the phone numbers
+        const phoneNumbers = Array.from(document.querySelectorAll(".phone-number")).map(input => input.value);
 
-        billForm.reset();
+        // Calculate the bill per person and round it up to the nearest whole number
+        const billPerPerson = Math.ceil(totalAmount / phoneNumbers.length);
+
+        // Display the result
+        resultDiv.innerHTML = `
+            <p>Total Bill: KSH ${totalAmount}</p>
+            <p>Each person needs to pay: KSH ${billPerPerson}</p>
+            <button id="prompt-payment">Prompt Payment</button>
+        `;
+
+        // Add event listener for "Prompt Payment" button
+        const promptPaymentButton = document.getElementById("prompt-payment");
+        promptPaymentButton.addEventListener("click", () => {
+            sendPaymentPrompts(phoneNumbers, billPerPerson);
+        });
     });
+
+    // Function to send payment prompts (placeholder for actual M-Pesa integration)
+    function sendPaymentPrompts(phoneNumbers, billPerPerson) {
+        alert(`Prompting payment of KSH ${billPerPerson} to the following numbers:\n${phoneNumbers.join(", ")}`);
+        // Placeholder for actual M-Pesa API logic
+    }
 });
