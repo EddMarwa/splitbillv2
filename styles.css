@@ -17,7 +17,7 @@ body {
     padding: 20px;
     width: 100%;
     max-width: 500px;
-    box-sizing: border-box; /* Ensure padding and border are included in width */
+    box-sizing: border-box; 
 }
 
 h1 {
