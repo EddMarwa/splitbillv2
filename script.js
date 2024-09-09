@@ -34,7 +34,6 @@ document.getElementById('phone-inputs').addEventListener('click', (event) => {
     }
 });
 
-// Handle form submission
 document.getElementById('submit').addEventListener('click', () => {
     const tillNumber = document.getElementById('till-number').value.trim();
     const totalBill = document.getElementById('total-bill').value.trim();
