@@ -56,7 +56,7 @@ document.getElementById('submit').addEventListener('click', () => {
         return;
     }
 
-    // Perform rounding of total bill
+    // Rounding of total bill
     const roundedAmount = Math.ceil(parseFloat(totalBill));
 
     fetch('/api/mpesa-prompt', {
