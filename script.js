@@ -15,7 +15,7 @@ function updateAmountPerPerson() {
 // Add event listener to update amount per person when the total bill or phone numbers change
 document.getElementById('total-bill').addEventListener('input', updateAmountPerPerson);
 
-// Add one new phone input field
+// Adds one new phone input field
 document.getElementById('add-phone').addEventListener('click', () => {
     const phoneInputs = document.getElementById('phone-inputs');
     const newInput = document.createElement('div');
