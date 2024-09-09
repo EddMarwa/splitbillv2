@@ -1,4 +1,4 @@
-// Function to calculate and display amount per person
+// This calculates and displays amount per person
 function updateAmountPerPerson() {
     const totalBill = parseFloat(document.getElementById('total-bill').value.trim());
     const phoneNumbers = document.querySelectorAll('.phone-number').length;
